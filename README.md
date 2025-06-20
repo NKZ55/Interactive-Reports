@@ -1,7 +1,3 @@
-当然可以！以下是一个适合放在GitHub README 中的内容模板，介绍你的用户研究交互式报告库。你可以根据项目的具体工具（如用到的技术栈）和研究内容进行调整：
-
----
-
 # 🧪 Interactive User Research Reports
 
 Welcome to the **Interactive User Research Reports** repository! This repo hosts a collection of interactive reports generated from user research projects. It is designed to make qualitative insights more accessible, engaging, and actionable for designers, product teams, and stakeholders.
