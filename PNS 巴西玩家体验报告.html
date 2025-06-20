@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>《PNS》巴西玩家体验交互式报告</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Calm Harmony -->
+    <!-- Application Structure Plan: The structure remains a single-page dashboard. The key update is adding a comparative analysis layer based on player experience (Match-3/4X). A new grouped bar chart is added in the 'Core Experience' section for immediate visual comparison. Within the tabs for 'Match-3' and 'Daily Systems', new sub-sections now explicitly compare feedback from experienced vs. inexperienced players. This deepens the analysis, showing *why* certain features are failing, and for *whom*, which is more actionable than a general summary. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: Ratings for Match-3 & Daily Systems, segmented by player experience. Goal: Visually contrast how prior experience impacts perception. Viz: Grouped Bar Chart (Chart.js). Interaction: Tooltips. Justification: A grouped bar chart is the ideal method to directly compare two groups (experienced/inexperienced) across multiple categories (gameplay types), making the significant gap in 'Daily Systems' perception immediately obvious.
+        - Report Info: Qualitative feedback segmented by experience. Goal: Provide the narrative behind the numbers. Viz: Styled text blocks within tabs. Interaction: Tab navigation. Justification: This retains the organized structure while adding a crucial layer of detail, explaining that 'confusing' feedback for daily systems comes primarily from non-4X players.
+        - All other choices remain the same, focusing on clarity and progressive disclosure.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 320px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        .nav-link {
+            transition: color 0.3s, border-bottom-color 0.3s;
+        }
+        .nav-link.active {
+            color: #2563eb; /* blue-600 */
+            border-bottom-color: #2563eb; /* blue-600 */
+        }
+        .tab-button.active {
+            background-color: #3b82f6; /* blue-500 */
+            color: white;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-in-out;
+        }
+        .accordion-button.open .accordion-arrow {
+            transform: rotate(180deg);
+        }
+    </style>
+</head>
+<body class="text-slate-700">
+
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <nav class="container mx-auto px-4 lg:px-6">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex-shrink-0">
+                    <h1 class="text-xl md:text-2xl font-bold text-slate-800">《PNS》巴西玩家体验报告</h1>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#overview" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:text-blue-600 border-b-2 border-transparent">报告概述</a>
+                        <a href="#core-experience" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:text-blue-600 border-b-2 border-transparent">核心体验</a>
+                        <a href="#payment" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:text-blue-600 border-b-2 border-transparent">充值体验</a>
+                        <a href="#recommendations" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:text-blue-600 border-b-2 border-transparent">优化建议</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto p-4 md:p-8">
+
+        <section id="overview" class="mb-16 scroll-mt-20">
+            <h2 class="text-3xl font-bold text-slate-800 mb-2">报告概述</h2>
+            <p class="mb-8 text-lg text-slate-600">本报告旨在深入探究《PNS》在巴西市场前期玩家流失的核心原因。通过对8名巴西玩家的深入访谈，我们发现游戏在拥有高品质美术和核心玩法的同时，于新手引导、日常系统（尤其是对非4X策略玩家）和支付体验上存在严重障碍。</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+                <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                    <h3 class="font-bold text-slate-800 text-lg mb-2">受访玩家</h3>
+                    <p class="text-3xl font-bold text-blue-600">8<span class="text-base font-normal text-slate-500 ml-2">位男性</span></p>
+                    <p class="text-slate-500 mt-1">6/8 非4X策略玩家</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                    <h3 class="font-bold text-slate-800 text-lg mb-2">核心优势 <span class="text-green-500">✔</span></h3>
+                    <p class="text-2xl font-bold text-slate-700">美术 & 三消</p>
+                    <p class="text-slate-500 mt-1">初期吸引力强</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                    <h3 class="font-bold text-slate-800 text-lg mb-2">主要痛点 <span class="text-red-500">✖</span></h3>
+                    <p class="text-2xl font-bold text-slate-700">引导 & 日常</p>
+                    <p class="text-slate-500 mt-1">对无经验玩家极不友好</p>
+                </div>
+                 <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                    <h3 class="font-bold text-slate-800 text-lg mb-2">致命障碍 <span class="text-red-600 font-extrabold">!!</span></h3>
+                    <p class="text-2xl font-bold text-slate-700">第三方充值</p>
+                    <p class="text-slate-500 mt-1">流程中断，体验极差</p>
+                </div>
+            </div>
+            
+            <div class="bg-white p-6 md:p-8 rounded-lg shadow-md border border-slate-200">
+                <h3 class="text-2xl font-bold text-slate-800 mb-4">关键指标评分 (1-11分)</h3>
+                <p class="mb-6 text-slate-600">尽管游戏的美术设计（9.38分）获得了极高评价，但玩家的整体评价（8.13分）和持续体验动力（8.0分）在30分钟后略有下降，这表明初期吸引力未能完全转化为持续的满意度。</p>
+                <div class="chart-container max-w-4xl mx-auto">
+                    <canvas id="ratingsChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section id="core-experience" class="mb-16 scroll-mt-20">
+            <h2 class="text-3xl font-bold text-slate-800 mb-2">核心体验分析：经验的鸿沟</h2>
+            <p class="mb-8 text-lg text-slate-600">玩家的游戏经验是影响其反馈的关键变量。“三消”玩法广受欢迎，但日常系统（尤其是基地管理）的体验对无4X策略经验的玩家而言，是巨大的理解障碍和流失点。</p>
+            
+            <div class="bg-white p-6 md:p-8 rounded-lg shadow-md border border-slate-200 mb-8">
+                <h3 class="text-2xl font-bold text-slate-800 mb-4 text-center">不同经验玩家的玩法评分对比</h3>
+                <div class="chart-container max-w-3xl mx-auto">
+                    <canvas id="experienceCompareChart"></canvas>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md border border-slate-200">
+                <div class="p-4 border-b border-slate-200">
+                    <div id="tabs-container" class="flex flex-wrap -mb-px justify-center gap-2">
+                        <button class="tab-button active inline-block py-3 px-5 text-base font-medium text-center text-slate-600 rounded-lg hover:bg-slate-100 transition" data-tab="tab-match3">⚔️ “三消+战斗”</button>
+                        <button class="tab-button inline-block py-3 px-5 text-base font-medium text-center text-slate-600 rounded-lg hover:bg-slate-100 transition" data-tab="tab-daily">🏗️ 日常系统</button>
+                        <button class="tab-button inline-block py-3 px-5 text-base font-medium text-center text-slate-600 rounded-lg hover:bg-slate-100 transition" data-tab="tab-tutorial">🤯 新手引导</button>
+                    </div>
+                </div>
+
+                <div class="p-6 md:p-8">
+                    <div id="tab-match3" class="tab-content">
+                        <h3 class="text-xl font-bold text-slate-800 mb-4">“三消+战斗”：普遍好评，但理解深度不同</h3>
+                        <p class="mb-6 text-slate-600">这是游戏最受好评的部分。无论玩家是否有消除游戏经验，都认为其刺激、流畅。但有经验的玩家更能体会其乐趣，而无经验者则对策略性感到困惑。</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-r-lg">
+                                <h4 class="font-bold mb-2">消除老手 (3人, 均分 9.67/11)</h4>
+                                <ul class="list-disc list-inside space-y-2 text-slate-700">
+                                    <li>评价极高，称赞连击和技能机制。</li>
+                                    <li>迅速理解玩法，并享受其带来的爽快感。</li>
+                                    <li>关注点在于玩法的乐趣和视觉表现。</li>
+                                </ul>
+                                <blockquote class="italic text-slate-600 border-l-2 border-blue-300 pl-3 mt-3">
+                                    <p>"非常喜欢，尤其是连击和技能机制"</p>
+                                    <cite class="text-sm text-slate-500 block text-right mt-1">- tkelvin13 (11分)</cite>
+                                </blockquote>
+                            </div>
+                            <div class="bg-slate-50 border-l-4 border-slate-400 p-4 rounded-r-lg">
+                                <h4 class="font-bold mb-2">消除新手 (5人, 均分 8.6/11)</h4>
+                                <ul class="list-disc list-inside space-y-2 text-slate-700">
+                                    <li>评价积极，认为操作流畅。</li>
+                                    <li>但对战斗机制不透明感到困惑。</li>
+                                    <li>感觉胜利更依赖“运气”而非“策略”。</li>
+                                </ul>
+                                 <blockquote class="italic text-slate-600 border-l-2 border-slate-300 pl-3 mt-3">
+                                    <p>"战术性很弱，难以理解正在发生什么"</p>
+                                    <cite class="text-sm text-slate-500 block text-right mt-1">- luc1988 (8分)</cite>
+                                </blockquote>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="tab-daily" class="tab-content hidden">
+                        <h3 class="text-xl font-bold text-slate-800 mb-4">日常系统：经验玩家与新手的体验鸿沟</h3>
+                        <p class="mb-6 text-slate-600">基地管理等日常系统是玩家体验的最大分歧点。有4X策略经验的玩家尚能接受，但对于占大多数的无经验玩家，这部分内容极其劝退。</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                             <div class="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-r-lg">
+                                <h4 class="font-bold mb-2">4X老手 (2人, 均分 7.0/11)</h4>
+                                <ul class="list-disc list-inside space-y-2 text-slate-700">
+                                    <li>评价尚可，对多元素融合表示认可。</li>
+                                    <li>能够理解RPG养成和基地建设的逻辑。</li>
+                                    <li>但仍认为部分玩法（如纯建设）评价不高。</li>
+                                </ul>
+                                <blockquote class="italic text-slate-600 border-l-2 border-blue-300 pl-3 mt-3">
+                                    <p>"高度认可多样玩法，喜欢多种元素融合。"</p>
+                                    <cite class="text-sm text-slate-500 block text-right mt-1">- gui_srios (8分)</cite>
+                                </blockquote>
+                            </div>
+                            <div class="bg-red-50 border-l-4 border-red-400 p-4 rounded-r-lg">
+                                <h4 class="font-bold mb-2">4X新手 (6人, 均分 6.83/11)</h4>
+                                <ul class="list-disc list-inside space-y-2 text-slate-700">
+                                    <li>评价普遍偏低，是主要的负反馈来源。</li>
+                                    <li>UI杂乱、信息过载、目标不明。</li>
+                                    <li>感觉被动耗时，是“作业感”，拖累体验。</li>
+                                </ul>
+                                <blockquote class="italic text-slate-600 border-l-2 border-red-300 pl-3 mt-3">
+                                    <p>"UI界面太杂乱，不知道该点哪儿。"</p>
+                                    <cite class="text-sm text-slate-500 block text-right mt-1">- luc1988 (6分)</cite>
+                                </blockquote>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="tab-tutorial" class="tab-content hidden">
+                        <h3 class="text-xl font-bold text-slate-800 mb-4">新手引导：未能弥合经验差距</h3>
+                        <p class="mb-6 text-slate-600">新手引导是导致前期流失的核心因素。6/8的玩家表示教程要么信息过载、解释不清，要么限制过多、节奏过快，导致玩家在游戏初期感到困惑和挫败。尤其对于无4X策略经验的玩家，从线性战斗到复杂基地管理的过渡缺乏平滑引导，是体验上的一个“悬崖”。</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="bg-red-50 border-l-4 border-red-400 p-4 rounded-r-lg">
+                                <h4 class="font-bold mb-2">主要问题</h4>
+                                <ul class="list-disc list-inside space-y-2 text-slate-700">
+                                    <li>信息过载，但核心机制（如属性克制）解释不足。</li>
+                                    <li>战斗、解谜、基地管理多模式切换突兀，缺乏引导。</li>
+                                    <li>节奏过快，玩家感到被“按着头”操作，缺乏掌控感。</li>
+                                    <li>后期引导缺失，到达基地后不知所措。</li>
+                                </ul>
+                            </div>
+                            <div class="bg-amber-50 border-l-4 border-amber-400 p-4 rounded-r-lg">
+                                <h4 class="font-bold mb-2">玩家原声</h4>
+                                <blockquote class="italic text-slate-600 border-l-2 border-amber-300 pl-3">
+                                    <p>"教程提供了很多信息，但没有解释含义，对新手来说容易困惑且反直觉。"</p>
+                                    <cite class="text-sm text-slate-500 block text-right mt-2">- erikson</cite>
+                                </blockquote>
+                                <blockquote class="italic text-slate-600 border-l-2 border-amber-300 pl-3 mt-4">
+                                    <p>"教程节奏过快、信息量过大，完全跟不上，需要放慢并逐步引导。"</p>
+                                    <cite class="text-sm text-slate-500 block text-right mt-2">- luc1988</cite>
+                                </blockquote>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="payment" class="mb-16 scroll-mt-20">
+            <h2 class="text-3xl font-bold text-slate-800 mb-2">致命障碍：第三方充值体验</h2>
+            <p class="mb-8 text-lg text-slate-600">如果说新手引导和日常系统是劝退，那么充值体验则是直接的“交易杀手”。这是本次访谈中问题最严重、最亟待解决的环节。</p>
+
+            <div class="bg-white p-6 md:p-8 rounded-lg shadow-md border border-slate-200">
+                <div class="text-center mb-8">
+                    <h3 class="text-xl font-semibold text-slate-800">充值流程体验评分</h3>
+                    <p class="text-7xl font-extrabold text-red-600 my-2">1.88 <span class="text-2xl font-normal text-slate-500">/ 4</span></p>
+                    <p class="text-xl font-bold text-red-500">（非常复杂）</p>
+                </div>
+
+                <h4 class="text-xl font-bold text-slate-800 mb-4 text-center">玩家的充值“死亡之路”</h4>
+                <div class="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-4 my-6 p-4">
+                    <div class="text-center">
+                        <div class="bg-blue-100 text-blue-800 w-32 h-16 flex items-center justify-center rounded-lg shadow">游戏内点击</div>
+                    </div>
+                    <div class="text-2xl text-slate-400 font-light">→</div>
+                    <div class="text-center">
+                        <div class="bg-blue-100 text-blue-800 w-32 h-16 flex items-center justify-center rounded-lg shadow">跳转外部网站</div>
+                    </div>
+                    <div class="text-2xl text-slate-400 font-light">→</div>
+                    <div class="text-center relative">
+                        <div class="bg-red-100 text-red-800 w-48 h-32 flex flex-col items-center justify-center rounded-lg shadow-lg border-2 border-red-500 p-2">
+                            <p class="font-bold text-lg">体验中断</p>
+                            <ul class="text-sm mt-1 list-disc list-inside">
+                                <li>链接打不开</li>
+                                <li>选择服务器/角色 (数千项)</li>
+                                <li>要求额外注册</li>
+                            </ul>
+                        </div>
+                    </div>
+                     <div class="text-2xl text-slate-400 font-light">→</div>
+                     <div class="text-center">
+                        <div class="bg-red-500 text-white w-32 h-16 flex items-center justify-center rounded-lg shadow font-bold">放弃支付</div>
+                    </div>
+                </div>
+
+                <div class="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                        <h4 class="text-lg font-bold mb-3 text-red-600">普遍遇到的问题</h4>
+                         <ul class="space-y-3">
+                            <li class="flex items-start"><span class="text-red-500 font-bold mr-2">❗️</span><span><strong class="text-slate-800">链接无法访问：</strong>多数玩家点击后无反应或链接失效。</span></li>
+                            <li class="flex items-start"><span class="text-red-500 font-bold mr-2">❗️</span><span><strong class="text-slate-800">操作极其复杂：</strong>需手动选择服务器和角色（选项繁多），甚至要求额外注册登录。</span></li>
+                            <li class="flex items-start"><span class="text-red-500 font-bold mr-2">❗️</span><span><strong class="text-slate-800">缺乏本地支付：</strong>没有巴西主流支付方式，尤其是 <span class="font-bold bg-yellow-200 px-1 rounded">Pix</span> 和 Boleto。</span></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-bold mb-3 text-green-600">玩家的核心诉求</h4>
+                        <ul class="space-y-3">
+                            <li class="flex items-start"><span class="text-green-500 font-bold mr-2">💡</span><span><strong class="text-slate-800">游戏内嵌支付：</strong>实现“一键支付”，无需跳转外部网页。</span></li>
+                            <li class="flex items-start"><span class="text-green-500 font-bold mr-2">💡</span><span><strong class="text-slate-800">支持本地支付 🇧🇷：</strong>必须优先接入Pix、Boleto和本地信用卡。</span></li>
+                            <li class="flex items-start"><span class="text-green-500 font-bold mr-2">💡</span><span><strong class="text-slate-800">简化流程：</strong>自动识别玩家信息，移除不必要步骤。</span></li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <section id="recommendations" class="scroll-mt-20">
+            <h2 class="text-3xl font-bold text-slate-800 mb-2">关键痛点与优化建议</h2>
+            <p class="mb-8 text-lg text-slate-600">基于玩家反馈，我们梳理出四大优化方向。解决这些问题将显著提升巴西玩家的前期留存和付费转化。</p>
+            
+            <div id="accordion-container" class="space-y-4">
+                <div class="bg-white rounded-lg shadow-sm border border-slate-200">
+                    <h2>
+                        <button type="button" class="accordion-button flex items-center justify-between w-full p-5 font-medium text-left text-slate-700 hover:bg-slate-100 transition duration-300">
+                            <span class="text-lg">🤯 1. 新手引导 (尤其针对无4X经验玩家)</span>
+                            <svg class="accordion-arrow w-6 h-6 shrink-0 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                    </h2>
+                    <div class="accordion-content">
+                        <div class="p-5 border-t border-slate-200">
+                            <p class="mb-4 text-slate-600"><strong>痛点：</strong>教程节奏过快、信息过载。多模式切换突兀，UI杂乱。对于**不熟悉4X策略游戏**的玩家，这种复杂性尤为突出。</p>
+                            <ul class="list-disc list-inside space-y-2 text-slate-700">
+                                <li><strong>重构教程：</strong>采用“渐进式解锁”，先聚焦核心战斗，后引入复杂系统。</li>
+                                <li><strong>分层引导：</strong>为无4X经验玩家提供更细致、更可视化的基地管理引导，甚至提供“精简模式”。</li>
+                                <li><strong>强化解释：</strong>用更直观的图文和演示解释属性克制、技能效果等核心机制。</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-sm border border-slate-200">
+                    <h2>
+                        <button type="button" class="accordion-button flex items-center justify-between w-full p-5 font-medium text-left text-slate-700 hover:bg-slate-100 transition duration-300">
+                            <span class="text-lg">🏗️ 2. 日常系统与基地管理</span>
+                            <svg class="accordion-arrow w-6 h-6 shrink-0 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                    </h2>
+                    <div class="accordion-content">
+                        <div class="p-5 border-t border-slate-200">
+                             <p class="mb-4 text-slate-600"><strong>痛点：</strong>对无4X经验玩家而言，建设玩法被动耗时，被视为“拖累体验”和“作业感”。UI混乱，目标不明。</p>
+                             <ul class="list-disc list-inside space-y-2 text-slate-700">
+                                <li><strong>简化流程：</strong>引入“一键完成”或“离线挂机”，减少无意义的等待和点击。</li>
+                                <li><strong>优化UI/UX：</strong>重新设计基地管理界面，确保信息布局清晰、功能指引明确。</li>
+                                <li><strong>提升互动性：</strong>增加基地防御等高互动性玩法，让日常系统更有趣。</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                 <div class="bg-white rounded-lg shadow-sm border-2 border-red-500">
+                    <h2>
+                        <button type="button" class="accordion-button flex items-center justify-between w-full p-5 font-medium text-left text-red-700 hover:bg-red-50 transition duration-300">
+                            <span class="text-lg font-bold">💰 3. 第三方充值网站体验 (最高优先级)</span>
+                            <svg class="accordion-arrow w-6 h-6 shrink-0 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                    </h2>
+                    <div class="accordion-content">
+                        <div class="p-5 border-t border-red-200">
+                            <p class="mb-4 text-slate-600"><strong>痛点：</strong>链接失效、流程复杂、缺乏本地支付方式，是付费转化的致命障碍。</p>
+                             <ul class="list-disc list-inside space-y-2 text-slate-700">
+                                <li><strong>内嵌游戏内支付：</strong>将充值入口直接集成到游戏客户端，避免外部跳转。</li>
+                                <li><strong>支持本地支付方式：</strong><strong class="text-red-600">必须优先接入Pix</strong>，并支持Boleto等巴西主流支付渠道。</li>
+                                <li><strong>简化支付步骤：</strong>移除不必要的选择和注册步骤，实现真正的一键购买。</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-slate-800 text-slate-300 mt-16">
+        <div class="container mx-auto py-6 px-4 text-center">
+            <p>&copy; 2025 PNS 游戏体验研究报告</p>
+            <p class="text-sm text-slate-400 mt-1">数据来源：巴西玩家定性访谈 (n=8)</p>
+        </div>
+    </footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    const ratingsData = {
+        labels: ['美术设计 (10分钟)', '继续体验动力 (30分钟)', '整体评价 (30分钟)'],
+        datasets: [{
+            label: '玩家平均分 (1-11)',
+            data: [9.38, 8.0, 8.13],
+            backgroundColor: [
+                'rgba(59, 130, 246, 0.7)',
+                'rgba(249, 115, 22, 0.7)',
+                'rgba(234, 179, 8, 0.7)'
+            ],
+            borderColor: [
+                'rgba(37, 99, 235, 1)',
+                'rgba(217, 70, 239, 1)',
+                'rgba(192, 132, 252, 1)'
+            ],
+            borderWidth: 1,
+            borderRadius: 5,
+        }]
+    };
+
+    const ratingsCtx = document.getElementById('ratingsChart').getContext('2d');
+    new Chart(ratingsCtx, {
+        type: 'bar',
+        data: ratingsData,
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: 'y',
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    max: 11,
+                    grid: { color: 'rgba(203, 213, 225, 0.3)' }
+                },
+                y: { grid: { display: false } }
+            },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `${context.dataset.label}: ${context.raw}分`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    const experienceCompareCtx = document.getElementById('experienceCompareChart').getContext('2d');
+    new Chart(experienceCompareCtx, {
+        type: 'bar',
+        data: {
+            labels: ['“三消+战斗”玩法', '日常系统 (基地等)'],
+            datasets: [
+                {
+                    label: '有经验玩家',
+                    data: [9.67, 7.0],
+                    backgroundColor: 'rgba(59, 130, 246, 0.7)',
+                    borderColor: 'rgba(37, 99, 235, 1)',
+                    borderWidth: 1,
+                    borderRadius: 5,
+                },
+                {
+                    label: '无经验玩家',
+                    data: [8.6, 6.83],
+                    backgroundColor: 'rgba(100, 116, 139, 0.7)',
+                    borderColor: 'rgba(51, 65, 85, 1)',
+                    borderWidth: 1,
+                    borderRadius: 5,
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 11,
+                    title: {
+                        display: true,
+                        text: '平均分 (1-11)'
+                    },
+                    grid: { color: 'rgba(203, 213, 225, 0.3)' }
+                },
+                x: { grid: { display: false } }
+            },
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                },
+            }
+        }
+    });
+
+
+    const tabsContainer = document.getElementById('tabs-container');
+    const tabButtons = tabsContainer.querySelectorAll('.tab-button');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabsContainer.addEventListener('click', (e) => {
+        const clickedButton = e.target.closest('.tab-button');
+        if (!clickedButton) return;
+        const tabId = clickedButton.dataset.tab;
+        tabButtons.forEach(button => button.classList.remove('active'));
+        clickedButton.classList.add('active');
+        tabContents.forEach(content => {
+            content.classList.toggle('hidden', content.id !== tabId);
+        });
+    });
+
+    const accordionContainer = document.getElementById('accordion-container');
+    accordionContainer.addEventListener('click', (e) => {
+        const button = e.target.closest('.accordion-button');
+        if (!button) return;
+
+        const content = button.parentElement.nextElementSibling;
+        const isOpen = button.classList.contains('open');
+        
+        document.querySelectorAll('.accordion-button').forEach(b => {
+             if (b !== button) {
+                b.classList.remove('open');
+                const otherContent = b.parentElement.nextElementSibling;
+                if(otherContent) otherContent.style.maxHeight = null;
+             }
+        });
+
+        if (isOpen) {
+            button.classList.remove('open');
+            content.style.maxHeight = null;
+        } else {
+            button.classList.add('open');
+            content.style.maxHeight = content.scrollHeight + "px";
+        }
+    });
+    
+    const navLinks = document.querySelectorAll('.nav-link');
+    const sections = document.querySelectorAll('main section');
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          navLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href').substring(1) === entry.target.id) {
+              link.classList.add('active');
+            }
+          });
+        }
+      });
+    }, { root: null, rootMargin: '0px', threshold: 0.4 });
+
+    sections.forEach(section => observer.observe(section));
+
+    navLinks.forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            document.querySelector(this.getAttribute('href')).scrollIntoView({
+                behavior: 'smooth'
+            });
+        });
+    });
+
+});
+</script>
+
+</body>
+</html>
